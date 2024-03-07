@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	orasImageURL = "ghcr.io/oras-project/oras:v%s"
+	orasImageURL = "ghcr.io/oras-project/oras"
 	orasCommand  = "/bin/oras"
 )
 
@@ -47,12 +47,12 @@ func New(
 	// OCI registry username
 	// +optional
 	plainHttp bool,
-	// Oras version
+	// Oras image version tag
 	// +optional
-	// +default="1.1.0"
-	version string,
+	// +default="v1.1.0"
+	imageTag string,
 ) *Oras {
-	container := dag.Container().From(fmt.Sprintf(orasImageURL, version))
+	container := dag.Container().From(fmt.Sprintf("%s:%s", orasImageURL, imageTag))
 	oras := &Oras{
 		Registry:  registry,
 		Username:  username,
