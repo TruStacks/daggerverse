@@ -19,12 +19,15 @@ type Oras struct {
 }
 
 func (oras *Oras) login(container *Container) *Container {
-	container.WithSecretVariable("REGISTRY_PASSWORD", oras.Password)
-	cmd := []string{"login", "-u", oras.Username, "-p", "$REGISTRY_PASSWORD", oras.Registry}
+	container = container.WithSecretVariable("REGISTRY_PASSWORD", oras.Password)
+	container = container.WithEntrypoint([]string{"/bin/sh", "-c"})
+	cmd := []string{"oras", "login", "-u", oras.Username, "-p", "$REGISTRY_PASSWORD", oras.Registry}
 	if oras.PlainHTTP {
 		cmd = append(cmd, "--plain-http")
 	}
-	return container.WithExec([]string{"/bin/sh", "-c", strings.Join(cmd, " ")})
+	return container.
+		WithExec([]string{strings.Join(cmd, " ")}).
+		WithEntrypoint([]string{"/bin/oras"})
 }
 
 func New(
@@ -63,10 +66,10 @@ func New(
 func (oras *Oras) Push(
 	// Artifact source directory
 	source *Directory,
-	// Artifact path
-	path string,
 	// Artifact name
 	name string,
+	// Artifact file
+	file string,
 	// Artifact tag
 	tag string,
 	// Artifact type
@@ -80,7 +83,7 @@ func (oras *Oras) Push(
 	if artifactType != "" {
 		cmd = append(cmd, "--artifact-type", artifactType)
 	}
-	cmd = append(cmd, fmt.Sprintf("%s/%s:%s", oras.Registry, name, tag), path)
+	cmd = append(cmd, fmt.Sprintf("%s/%s:%s", oras.Registry, name, tag), file)
 	_, err := oras.Container.
 		WithMountedDirectory("/artifacts", source).
 		WithWorkdir("/artifacts").
