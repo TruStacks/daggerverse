@@ -1,5 +1,4 @@
 // Distribute Artifacts Across OCI Registries With Ease
-// https://oras.land/
 
 package main
 
