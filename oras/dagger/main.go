@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+const (
+	orasImageURL = "ghcr.io/oras-project/oras:v%s"
+	orasCommand  = "/bin/oras"
+)
+
 type Oras struct {
 	Registry  string
 	Username  string
@@ -27,7 +32,7 @@ func (oras *Oras) login(container *Container) *Container {
 	}
 	return container.
 		WithExec([]string{strings.Join(cmd, " ")}).
-		WithEntrypoint([]string{"/bin/oras"})
+		WithEntrypoint([]string{orasCommand})
 }
 
 func New(
@@ -47,7 +52,7 @@ func New(
 	// +default="1.1.0"
 	version string,
 ) *Oras {
-	container := dag.Container().From(fmt.Sprintf("ghcr.io/oras-project/oras:v%s", version))
+	container := dag.Container().From(fmt.Sprintf(orasImageURL, version))
 	oras := &Oras{
 		Registry:  registry,
 		Username:  username,
